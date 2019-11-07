@@ -10,7 +10,8 @@ exports.handler = async function (context, event, callback) {
 		autoAnswer: "true",
 		type: "outbound",
 		direction: "outbound",
-		name: event.To
+		name: event.To,
+		workerActivityPreDialPad: event.workerActivityPreDialPad
 	};
 
 	let twiml = new Twilio.twiml.VoiceResponse();

@@ -3,29 +3,25 @@ import { SyncClient } from "twilio-sync";
 import { Manager } from "@twilio/flex-ui";
 
 //independent features
-import { loadDialPadInterface } from "./components/dialpad"
-import { loadExternalTransferInterface } from "./components/external-transfer"
+import { loadDialPadInterface } from "./components/dialpad";
+import { loadExternalTransferInterface } from "./components/external-transfer";
 
 // common libraries
 import { registerReservationCreatedExtensions } from "./eventListeners/workerClient/reservationCreated";
-import { registerActionExtensions } from "./eventListeners/actionsFramework"
+import { registerActionExtensions } from "./eventListeners/actionsFramework";
 
 import "./notifications/CustomNotifications";
 
 const PLUGIN_NAME = "OutboundDialingWithConferencePlugin";
 
-export const FUNCTIONS_HOSTNAME = '';
+export const FUNCTIONS_HOSTNAME = "";
 export const DEFAULT_FROM_NUMBER = ""; // twilio account or verified number
 export const SYNC_CLIENT = new SyncClient(Manager.getInstance().user.token);
 
 export default class OutboundDialingWithConferencePlugin extends FlexPlugin {
-
-
   constructor() {
     super(PLUGIN_NAME);
-
   }
-
 
   /**
    * This code is run when your plugin is being started
@@ -37,7 +33,7 @@ export default class OutboundDialingWithConferencePlugin extends FlexPlugin {
   init(flex, manager) {
     // Add custom extensions
     loadDialPadInterface.bind(this)(flex, manager);
-    loadExternalTransferInterface.bind(this)(flex, manager)
+    loadExternalTransferInterface.bind(this)(flex, manager);
     registerReservationCreatedExtensions(manager);
     registerActionExtensions();
   }

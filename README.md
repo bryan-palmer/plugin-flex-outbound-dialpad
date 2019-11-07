@@ -1,3 +1,12 @@
+# branch: postCallSetWorkerActivityToPrevious 
+Purpose: After hanging up with the caller, the agent's activity will be reset to pre-dialpad value.
+
+- When dialpad is displayed to the agent, their current activity is saved to component state. 
+- When outbound dial is initiated, an additional query string variable is passed (`workerActivityPreDialPad`), and ultimately added as a task attribute via function. 
+- When hanging up, action listener `afterHangupCall` detects if task attribute "workerActivityPreDialPad" is present, and if so sets the activity.
+
+--------
+
 # plugin-flex-outbound-dialpad
 
 This plugin is intended to demonstrate how to make outbound calls from [Twilio Flex](https://www.twilio.com/flex) without having to do any custom work around call conferencing and monitoring.  It has also merged in work for external transfers, taken from this [project](https://github.com/trogers-twilio/plugin-external-conference-warm-transfer)

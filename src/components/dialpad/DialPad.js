@@ -115,6 +115,8 @@ export class DialPad extends React.Component {
 
     this.token = Manager.getInstance().user.token;
     this.syncDocName = `${this.props.workerContactUri}.outbound-call`;
+
+    this.workerActivityPreDialPad = this.props.workerActivity;
   }
 
   buttons = [
@@ -418,6 +420,7 @@ export class DialPad extends React.Component {
       + `&To=${encodeURIComponent(to)}`
       + `&From=${encodeURIComponent(from)}`
       + `&workerContactUri=${encodeURIComponent(this.props.workerContactUri)}`
+      + `&workerActivityPreDialPad=${encodeURIComponent(this.workerActivityPreDialPad)}`
       + `&functionsDomain=${encodeURIComponent(FUNCTIONS_HOSTNAME)}`
     )
 
@@ -609,7 +612,8 @@ const mapStateToProps = state => {
       typeof state.flex.phone.connection === "undefined"
         ? ""
         : state.flex.phone.connection.source,
-    available: state.flex.worker.activity.available
+    available: state.flex.worker.activity.available,
+    workerActivity: state.flex.worker.activity.name
   };
 };
 
