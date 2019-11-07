@@ -1,8 +1,8 @@
 import { Actions, Notifications } from "@twilio/flex-ui";
 
-export function registerHangupCallExtensions() {
-  Actions.addListener("afterHangupCall", payload => {
-    console.log("AFTER HANGUP CALL: ", payload);
+export function registerCompleteTaskExtensions() {
+  Actions.addListener("beforeCompleteTask", payload => {
+    console.log("BEFORE COMPLETE TASK: ", payload);
     const task = payload.task;
 
     console.log(task);

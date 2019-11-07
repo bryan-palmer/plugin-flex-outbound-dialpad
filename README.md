@@ -3,7 +3,7 @@ Purpose: After hanging up with the caller, the agent's activity will be reset to
 
 - When dialpad is displayed to the agent, their current activity is saved to component state. 
 - When outbound dial is initiated, an additional query string variable is passed (`workerActivityPreDialPad`), and ultimately added as a task attribute via function. 
-- When hanging up, action listener `afterHangupCall` detects if task attribute "workerActivityPreDialPad" is present, and if so sets the activity.
+- When completing the task, action listener `beforeCompleteTask` detects if task attribute "workerActivityPreDialPad" is present, and if so sets the activity.
 
 --------
 

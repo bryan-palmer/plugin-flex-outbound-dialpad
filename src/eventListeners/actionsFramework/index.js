@@ -1,12 +1,12 @@
 import { registerAcceptTaskExtensions } from "./acceptTask";
-import { registerHangupCallExtensions } from "./hangupCall";
+import { registerCompleteTaskExtensions } from "./completeTask";
 import { registerHoldParticipantExtensions } from "./holdParticipant";
 import { registerUnholdParticipantExtensions } from "./unholdParticipant";
 import { registerKickParticipantExtensions } from "./kickParticipant";
 
 export function registerActionExtensions() {
 	registerAcceptTaskExtensions();
-	registerHangupCallExtensions();
+	registerCompleteTaskExtensions();
 	registerHoldParticipantExtensions();
 	registerUnholdParticipantExtensions();
 	registerKickParticipantExtensions();

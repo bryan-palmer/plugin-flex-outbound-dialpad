@@ -8,7 +8,7 @@ import Close from "@material-ui/icons/Close";
 import styled from "react-emotion";
 import { withStyles } from "@material-ui/core/styles";
 import { takeOutboundCall } from "../../eventListeners/workerClient/reservationCreated";
-import { SYNC_CLIENT } from "../../OutboundDialingWithConferencePlugin"
+import { SYNC_CLIENT } from "../../OutboundDialingWithConferencePlugin";
 
 const StyledDialog = withStyles({
   root: {
@@ -25,7 +25,9 @@ class DialPadDialog extends React.Component {
       call: { callSid: "", callStatus: "" }
     };
 
-    this.syncDocName = `${Manager.getInstance().workerClient.attributes.contact_uri}.outbound-call`;
+    this.syncDocName = `${
+      Manager.getInstance().workerClient.attributes.contact_uri
+    }.outbound-call`;
 
     //audio credit https://freesound.org/people/AnthonyRamirez/sounds/455413/
     //creative commons license
@@ -46,15 +48,13 @@ class DialPadDialog extends React.Component {
       this.ringSound.pause();
       this.ringSound.currentTime = 0;
 
-      SYNC_CLIENT
-        .document(this.syncDocName)
-        .then(doc => {
-          doc.update({
-            call: { callSid: "", callStatus: "" },
-            numberToDial: "",
-            remoteOpen: false
-          });
-        })
+      SYNC_CLIENT.document(this.syncDocName).then(doc => {
+        doc.update({
+          call: { callSid: "", callStatus: "" },
+          numberToDial: "",
+          remoteOpen: false
+        });
+      });
       takeOutboundCall();
       this.handleClose();
     } else if (
@@ -77,23 +77,22 @@ class DialPadDialog extends React.Component {
 
   initSyncListener() {
     // init sync doc on component mount
-    SYNC_CLIENT
-      .document(this.syncDocName)
-      .then(doc => {
-        this.setState(doc.value)
-        this.handleCallStatusChange()
-        doc.on("updated", updatedDoc => {
-          this.setState(updatedDoc.value)
-          if (updatedDoc.value.remoteOpen) {
-            this.props.forceOpen();
-          }
-          this.handleCallStatusChange()
-        })
-      })
+    SYNC_CLIENT.document(this.syncDocName).then(doc => {
+      this.setState(doc.value);
+      this.handleCallStatusChange();
+      doc.on("updated", updatedDoc => {
+        this.setState(updatedDoc.value);
+        if (updatedDoc.value.remoteOpen) {
+          this.props.forceOpen();
+        }
+        this.handleCallStatusChange();
+      });
+    });
   }
 
   handleClose = () => {
     const { call } = this.state;
+
     if (
       call.callStatus !== "dialing" &&
       call.callStatus !== "queued" &&

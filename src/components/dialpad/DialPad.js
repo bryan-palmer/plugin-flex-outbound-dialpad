@@ -17,7 +17,11 @@ import Backspace from "@material-ui/icons/Backspace";
 import classNames from "classnames";
 import { connect } from "react-redux";
 
-import { FUNCTIONS_HOSTNAME, DEFAULT_FROM_NUMBER, SYNC_CLIENT } from "../../OutboundDialingWithConferencePlugin"
+import {
+  FUNCTIONS_HOSTNAME,
+  DEFAULT_FROM_NUMBER,
+  SYNC_CLIENT
+} from "../../OutboundDialingWithConferencePlugin";
 
 const styles = theme => ({
   main: {
@@ -257,52 +261,52 @@ export class DialPad extends React.Component {
     return (
       <div className={classes.numpadRowContainer} style={{ marginBottom: 0 }}>
         {this.props.call.callStatus !== "queued" &&
-          this.props.call.callStatus !== "ringing" &&
-          this.props.activeCall === "" ? (
-            <div className={classes.numberButtonContainer}>
-              <MuiThemeProvider theme={greenButton}>
-                <Button
-                  variant="contained"
-                  style={{ color: "white" }}
-                  color="primary"
-                  className={classNames(
-                    classes.numberButton,
-                    classes.functionButton,
-                    this.props.call.callStatus === "dialing" ? classes.hide : ""
-                  )}
-                  onClick={e => {
-                    this.dial(this.props.number);
-                  }}
-                >
-                  <Phone />
-                </Button>
-              </MuiThemeProvider>
-            </div>
-          ) : (
-            <div />
-          )}
+        this.props.call.callStatus !== "ringing" &&
+        this.props.activeCall === "" ? (
+          <div className={classes.numberButtonContainer}>
+            <MuiThemeProvider theme={greenButton}>
+              <Button
+                variant="contained"
+                style={{ color: "white" }}
+                color="primary"
+                className={classNames(
+                  classes.numberButton,
+                  classes.functionButton,
+                  this.props.call.callStatus === "dialing" ? classes.hide : ""
+                )}
+                onClick={e => {
+                  this.dial(this.props.number);
+                }}
+              >
+                <Phone />
+              </Button>
+            </MuiThemeProvider>
+          </div>
+        ) : (
+          <div />
+        )}
         {this.props.call.callStatus === "queued" ||
-          this.props.call.callStatus === "ringing" ? (
-            <div className={classes.numberButtonContainer}>
-              <MuiThemeProvider theme={redButton}>
-                <Button
-                  variant="contained"
-                  style={{ color: "white" }}
-                  color="primary"
-                  className={classNames(
-                    classes.numberButton,
-                    classes.functionButton,
-                    this.props.call.callStatus === "queued" ? classes.hide : ""
-                  )}
-                  onClick={e => this.hangup(this.props.call.callSid)}
-                >
-                  <CallEnd />
-                </Button>
-              </MuiThemeProvider>
-            </div>
-          ) : (
-            <div />
-          )}
+        this.props.call.callStatus === "ringing" ? (
+          <div className={classes.numberButtonContainer}>
+            <MuiThemeProvider theme={redButton}>
+              <Button
+                variant="contained"
+                style={{ color: "white" }}
+                color="primary"
+                className={classNames(
+                  classes.numberButton,
+                  classes.functionButton,
+                  this.props.call.callStatus === "queued" ? classes.hide : ""
+                )}
+                onClick={e => this.hangup(this.props.call.callSid)}
+              >
+                <CallEnd />
+              </Button>
+            </MuiThemeProvider>
+          </div>
+        ) : (
+          <div />
+        )}
       </div>
     );
   }
@@ -327,9 +331,17 @@ export class DialPad extends React.Component {
     document.removeEventListener("paste", this.pasteListener, false);
   }
 
+  // set worker back to pre dialpad activity
+  resetAgentActivity() {
+    if (this.props.workerActivity !== this.workerActivityPreDialPad) {
+      Actions.invokeAction("SetActivity", {
+        activityName: this.workerActivityPreDialPad
+      });
+    }
+  }
+
   setAgentUnavailable() {
     return new Promise((resolve, reject) => {
-
       Actions.invokeAction("SetActivity", {
         activityName: "Busy"
       })
@@ -351,7 +363,7 @@ export class DialPad extends React.Component {
               reject();
             });
         });
-    })
+    });
   }
 
   checkNoVoiceTasksOpen() {
@@ -363,10 +375,10 @@ export class DialPad extends React.Component {
       if (value.channelType === "voice") {
         response = false;
       }
-    })
+    });
 
     return response;
-  };
+  }
 
   dial() {
     console.log("ATTEMPTING TO DIAL");
@@ -375,7 +387,11 @@ export class DialPad extends React.Component {
     if (
       this.checkNoVoiceTasksOpen() &&
       this.props.number !== "" &&
-      (!this.props.call || this.props.call.callStatus === "" || this.props.call.callStatus === "completed" || this.props.call.callStatus === "canceled" || this.props.call.callStatus === "failed") &&
+      (!this.props.call ||
+        this.props.call.callStatus === "" ||
+        this.props.call.callStatus === "completed" ||
+        this.props.call.callStatus === "canceled" ||
+        this.props.call.callStatus === "failed") &&
       this.props.activeCall === ""
     ) {
       this.setAgentUnavailable()
@@ -388,7 +404,7 @@ export class DialPad extends React.Component {
 
   orchestrateMakeCall() {
     if (!this.props.available) {
-      this.props.setCallFunction({ callSid: "", callStatus: "dialing" })
+      this.props.setCallFunction({ callSid: "", callStatus: "dialing" });
       this.makeDialFunctionCall(this.props.number)
         .then(response => {
           if (response.error) {
@@ -399,36 +415,37 @@ export class DialPad extends React.Component {
           }
         })
         .catch(error => {
-          this.props.setCallFunction({ callSid: "", callStatus: "" })
+          this.props.setCallFunction({ callSid: "", callStatus: "" });
           Notifications.showNotification("BackendError", {
             message: error.error.message
           });
-        })
+        });
     }
   }
 
   makeDialFunctionCall(to) {
+    const from = this.props.phoneNumber
+      ? this.props.phoneNumber
+      : DEFAULT_FROM_NUMBER;
 
-    const from = this.props.phoneNumber ? this.props.phoneNumber : DEFAULT_FROM_NUMBER;
-
-    const makeCallURL = `https://${FUNCTIONS_HOSTNAME}/outbound-dialing/makeCall`
+    const makeCallURL = `https://${FUNCTIONS_HOSTNAME}/outbound-dialing/makeCall`;
     const headers = {
-      'Content-Type': 'application/x-www-form-urlencoded'
-    }
-    const body = (
-      `token=${encodeURIComponent(this.token)}`
-      + `&To=${encodeURIComponent(to)}`
-      + `&From=${encodeURIComponent(from)}`
-      + `&workerContactUri=${encodeURIComponent(this.props.workerContactUri)}`
-      + `&workerActivityPreDialPad=${encodeURIComponent(this.workerActivityPreDialPad)}`
-      + `&functionsDomain=${encodeURIComponent(FUNCTIONS_HOSTNAME)}`
-    )
+      "Content-Type": "application/x-www-form-urlencoded"
+    };
+    const body =
+      `token=${encodeURIComponent(this.token)}` +
+      `&To=${encodeURIComponent(to)}` +
+      `&From=${encodeURIComponent(from)}` +
+      `&workerContactUri=${encodeURIComponent(this.props.workerContactUri)}` +
+      `&workerActivityPreDialPad=${encodeURIComponent(
+        this.workerActivityPreDialPad
+      )}` +
+      `&functionsDomain=${encodeURIComponent(FUNCTIONS_HOSTNAME)}`;
 
     return new Promise((resolve, reject) => {
-
       fetch(makeCallURL, {
         headers,
-        method: 'POST',
+        method: "POST",
         body
       })
         .then(response => response.json())
@@ -436,18 +453,16 @@ export class DialPad extends React.Component {
           resolve(json);
         })
         .catch(x => {
-          x = (x == "TypeError: Failed to fetch") ? "Backend not available" : x
-          resolve({ error: { message: x } })
-        })
-
-    })
+          x = x == "TypeError: Failed to fetch" ? "Backend not available" : x;
+          resolve({ error: { message: x } });
+        });
+    });
   }
 
   hangup(callSid) {
     // if hangup occurs while queued, twilio fails and fails
     // to handle future hang up requests
     if (this.props.call.callStatus !== "queued") {
-
       this.makeHangupFunctionCall(callSid)
         .then(response => {
           if (response.error) {
@@ -455,41 +470,40 @@ export class DialPad extends React.Component {
               message: response.error.message
             });
           }
-          if (response.call && (response.call.status === "completed" || response.call.status === "cancelled")) {
+          if (
+            response.call &&
+            (response.call.status === "completed" ||
+              response.call.status === "cancelled")
+          ) {
             // in case of emergency, if hangup operation is successfull
             // this ensures sync map is updated to allow for more calls
-            SYNC_CLIENT
-              .document(this.syncDocName)
-              .then(doc => {
-                doc.update({ call: { callSid: "", callStatus: "completed" } });
-              })
+            SYNC_CLIENT.document(this.syncDocName).then(doc => {
+              doc.update({ call: { callSid: "", callStatus: "completed" } });
+            });
             this.ringSound.pause();
           }
+
+          this.resetAgentActivity();
         })
         .catch(error => {
           Notifications.showNotification("BackendError", {
             message: error
           });
-        })
+        });
     }
   }
 
-  makeHangupFunctionCall = (CallSid) => {
-
-    const endCallURL = `https://${FUNCTIONS_HOSTNAME}/outbound-dialing/endCall`
+  makeHangupFunctionCall = CallSid => {
+    const endCallURL = `https://${FUNCTIONS_HOSTNAME}/outbound-dialing/endCall`;
     const headers = {
-      'Content-Type': 'application/x-www-form-urlencoded'
-    }
-    const body = (
-      `token=${this.token}`
-      + `&CallSid=${CallSid}`
-    )
+      "Content-Type": "application/x-www-form-urlencoded"
+    };
+    const body = `token=${this.token}` + `&CallSid=${CallSid}`;
 
     return new Promise((resolve, reject) => {
-
       fetch(endCallURL, {
         headers,
-        method: 'POST',
+        method: "POST",
         body
       })
         .then(response => response.json())
@@ -497,11 +511,11 @@ export class DialPad extends React.Component {
           resolve(json);
         })
         .catch(x => {
-          x = (x == "TypeError: Failed to fetch") ? "Backend not available" : x
-          resolve({ error: { message: x } })
-        })
-    })
-  }
+          x = x == "TypeError: Failed to fetch" ? "Backend not available" : x;
+          resolve({ error: { message: x } });
+        });
+    });
+  };
 
   eventListener = e => this.keyPressListener(e);
   eventkeydownListener = e => this.keydownListener(e);
@@ -548,7 +562,9 @@ export class DialPad extends React.Component {
   }
 
   backspace() {
-    this.props.setNumberFunction(this.props.number.substring(0, this.props.number.length - 1));
+    this.props.setNumberFunction(
+      this.props.number.substring(0, this.props.number.length - 1)
+    );
   }
   buttonPress(value) {
     const activeCall = this.props.activeCall;
